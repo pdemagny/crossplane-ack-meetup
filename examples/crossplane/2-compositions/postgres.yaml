@@ -1,0 +1,35 @@
+# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: MIT-0
+
+# Update spec.subnetIds and spec.vpcId fields before use.
+# Run `kubectl apply -f postgres.yaml` to test this example once you bootstrap the EKS cluster with Crossplane and AWS Provider
+
+# This example resource creates the following resources
+#     1. RDS Postgres Instance with auto generated password
+#     2. RDS subnet group
+#     3. EC2 Security group
+
+apiVersion: awsblueprints.io/v1alpha1
+kind: RelationalDatabase
+metadata:
+  name: cp-test-xdb
+  namespace: default
+spec:
+  compositionSelector:
+    matchLabels:
+      awsblueprints.io/provider: aws
+      awsblueprints.io/environment: dev
+      awsblueprints.io/createDBSubnetGroup: "true"
+  writeConnectionSecretToRef:
+    name: cp-test-xdb-out
+  resourceConfig:
+    providerConfigName: aws-provider-config
+    region: eu-west-1
+    tags:
+      - key: env
+        value: test
+  storageGB: 20
+  subnetIds:
+    - <YOUR_SUBNET1_ID>
+    - <YOUR_SUBNET2_ID>
+  vpcId: <YOUR_VPC_ID>

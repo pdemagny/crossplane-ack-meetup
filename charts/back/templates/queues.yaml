@@ -1,0 +1,29 @@
+{{- if .Values.aws.queues.enabled }}
+apiVersion: sqs.aws.crossplane.io/v1beta1
+kind: Queue
+metadata:
+  name: {{ include "back.fullname" . }}-queue
+  namespace: {{ .Release.Namespace }}
+spec:
+  forProvider:
+    region: eu-west-1
+    delaySeconds: 4
+    redrivePolicy:
+      deadLetterTargetArnRef:
+        name: {{ include "back.fullname" . }}-queue-dlq
+      maxReceiveCount: 1
+  providerConfigRef:
+    name: aws-provider-config
+---
+apiVersion: sqs.aws.crossplane.io/v1beta1
+kind: Queue
+metadata:
+  name: {{ include "back.fullname" . }}-queue-dlq
+  namespace: {{ .Release.Namespace }}
+spec:
+  forProvider:
+    region: eu-west-1
+    delaySeconds: 4
+  providerConfigRef:
+    name: aws-provider-config
+{{- end }}

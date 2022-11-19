@@ -1,0 +1,67 @@
+kind: Composition
+apiVersion: apiextensions.crossplane.io/v1
+metadata:
+  name: xpostgresqlinstances.aws.platformref.upbound.io
+  creationTimestamp: null
+  labels:
+    provider: aws
+spec:
+  compositeTypeRef:
+    apiVersion: aws.platformref.upbound.io/v1alpha1
+    kind: XPostgreSQLInstance
+  resources:
+    - name: compositePostgreSQLInstanceDbSubnetGroup
+      base:
+        apiVersion: rds.aws.upbound.io/v1beta1
+        kind: SubnetGroup
+        spec:
+          deletionPolicy: Delete
+          forProvider:
+            description: An excellent formation of subnetworks.
+            region: us-west-2
+      patches:
+        - fromFieldPath: spec.parameters.clusterRef.id
+          toFieldPath: spec.forProvider.subnetIdSelector.matchLabels[networks.aws.platformref.upbound.io/network-id]
+    - name: RDSInstanceSmall
+      base:
+        apiVersion: rds.aws.upbound.io/v1beta1
+        kind: Instance
+        spec:
+          deletionPolicy: Delete
+          forProvider:
+            dbSubnetGroupNameSelector:
+              matchControllerRef: true
+            engine: postgres
+            engineVersion: "13.7"
+            instanceClass: db.t3.micro
+            publiclyAccessible: false
+            region: us-west-2
+            skipFinalSnapshot: true
+            username: masteruser
+      patches:
+        - fromFieldPath: metadata.uid
+          toFieldPath: spec.writeConnectionSecretToRef.name
+          transforms:
+            - type: string
+              string:
+                fmt: "%s-postgresql"
+        - fromFieldPath: spec.writeConnectionSecretToRef.namespace
+          toFieldPath: spec.writeConnectionSecretToRef.namespace
+        - fromFieldPath: spec.parameters.storageGB
+          toFieldPath: spec.forProvider.allocatedStorage
+        - fromFieldPath: spec.parameters.clusterRef.id
+          toFieldPath: spec.forProvider.vpcSecurityGroupIDSelector.matchLabels[networks.aws.platformref.upbound.io/network-id]
+        - fromFieldPath: spec.parameters.passwordSecretRef.namespace
+          toFieldPath: spec.forProvider.passwordSecretRef.namespace
+        - fromFieldPath: spec.parameters.passwordSecretRef.name
+          toFieldPath: spec.forProvider.passwordSecretRef.name
+        - fromFieldPath: spec.parameters.passwordSecretRef.key
+          toFieldPath: spec.forProvider.passwordSecretRef.key
+      connectionDetails:
+        - name: endpoint
+          fromFieldPath: status.atProvider.endpoint
+        - name: username
+          fromFieldPath: spec.forProvider.username
+        - name: password
+          fromConnectionSecretKey: attribute.password
+  writeConnectionSecretsToNamespace: upbound-system

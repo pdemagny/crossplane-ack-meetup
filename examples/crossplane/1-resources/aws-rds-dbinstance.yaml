@@ -1,0 +1,60 @@
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: cp-test-db-in
+  namespace: default
+type: Opaque
+data:
+  password: UDRzc3cwcmQ= # P4ssw0rd
+---
+apiVersion: rds.aws.crossplane.io/v1alpha1
+kind: DBInstance
+metadata:
+  name: cp-test-db
+spec:
+  forProvider:
+    region: eu-west-1
+    allocatedStorage: 20
+    autoMinorVersionUpgrade: true
+    autogeneratePassword: true
+    backupRetentionPeriod: 14
+    dbInstanceClass: db.t3.micro
+    dbName: ackcpsatbdb
+    engine: postgres
+    engineVersion: "13.7"
+    masterUsername: adminuser
+    masterUserPasswordSecretRef:
+      key: password
+      name: cp-test-db-in
+      namespace: default
+    preferredBackupWindow: "7:00-8:00"
+    preferredMaintenanceWindow: "Sat:8:00-Sat:11:00"
+    publiclyAccessible: false
+    skipFinalSnapshot: true
+    storageEncrypted: false
+    storageType: gp2
+    dbParameterGroupName: cp-test-db-pg
+    applyImmediately: true
+  writeConnectionSecretToRef:
+    name: cp-test-db-out
+    namespace: default
+  providerConfigRef:
+    name: aws-provider-config
+---
+apiVersion: rds.aws.crossplane.io/v1alpha1
+kind: DBParameterGroup
+metadata:
+  name: cp-test-db-pg
+spec:
+  forProvider:
+    region: eu-west-1
+    dbParameterGroupFamilySelector:
+      engine: postgres
+    description: example
+    parameters:
+      - parameterName: application_name
+        parameterValue: "example"
+        applyMethod: immediate
+  providerConfigRef:
+    name: aws-provider-config

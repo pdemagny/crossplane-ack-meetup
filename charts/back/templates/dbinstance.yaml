@@ -1,0 +1,18 @@
+{{- if .Values.aws.dbinstance.enabled }}
+apiVersion: rds.services.k8s.aws/v1alpha1
+kind: DBInstance
+metadata:
+  name: {{ include "back.fullname" . }}-dbinstance
+  namespace: {{ .Release.Namespace }}
+spec:
+  allocatedStorage: {{ .Values.aws.dbinstance.allocatedStorage }}
+  dbInstanceClass: {{ .Values.aws.dbinstance.dbInstanceClass }}
+  dbInstanceIdentifier: {{ include "back.fullname" . }}-dbinstance
+  engine: mariadb
+  engineVersion: "10.6"
+  masterUsername: "admin"
+  masterUserPassword:
+    namespace: {{ .Release.Namespace }}
+    name: {{ .Values.aws.dbinstance.masterUserPasswordSecretName }}
+    key: {{ .Values.aws.dbinstance.masterUserPasswordSecretKey }}
+{{- end }}

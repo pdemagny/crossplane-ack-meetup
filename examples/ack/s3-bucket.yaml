@@ -1,0 +1,14 @@
+apiVersion: s3.services.k8s.aws/v1alpha1
+kind: Bucket
+metadata:
+  name: "ack-test-bucket-15"
+spec:
+  acl: private
+  createBucketConfiguration:
+    locationConstraint: "eu-west-1"
+  name: "ack-test-bucket-15"
+  publicAccessBlock:
+    blockPublicACLs: true
+    blockPublicPolicy: true
+    ignorePublicACLs: true
+    restrictPublicBuckets: true

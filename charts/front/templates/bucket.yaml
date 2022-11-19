@@ -1,0 +1,16 @@
+{{- if .Values.aws.bucket.enabled }}
+apiVersion: s3.services.k8s.aws/v1alpha1
+kind: Bucket
+metadata:
+  name: {{ include "front.fullname" . }}-test-ack-bucket
+spec:
+  acl: {{ .Values.aws.bucket.acl | default "private" }}
+  createBucketConfiguration:
+    locationConstraint: {{ .Values.aws.bucket.region | default "us-east-1" }}
+  name: {{ include "front.fullname" . }}-test-ack-bucket
+  publicAccessBlock:
+    blockPublicACLs: true
+    blockPublicPolicy: true
+    ignorePublicACLs: true
+    restrictPublicBuckets: true
+{{- end }}

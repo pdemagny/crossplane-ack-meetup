@@ -1,0 +1,55 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ack-test-db-cm
+  namespace: default
+data: {}
+---
+apiVersion: services.k8s.aws/v1alpha1
+kind: FieldExport
+metadata:
+  name: ack-test-db-host
+  namespace: default
+spec:
+  to:
+    name: ack-test-db-cm
+    kind: configmap
+  from:
+    path: ".status.endpoint.address"
+    resource:
+      group: rds.services.k8s.aws
+      kind: DBInstance
+      name: ack-test-db
+---
+apiVersion: services.k8s.aws/v1alpha1
+kind: FieldExport
+metadata:
+  name: ack-test-db-port
+  namespace: default
+spec:
+  to:
+    name: ack-test-db-cm
+    kind: configmap
+  from:
+    path: ".status.endpoint.port"
+    resource:
+      group: rds.services.k8s.aws
+      kind: DBInstance
+      name: ack-test-db
+---
+apiVersion: services.k8s.aws/v1alpha1
+kind: FieldExport
+metadata:
+  name: ack-test-db-user
+  namespace: default
+spec:
+  to:
+    name: ack-test-db-cm
+    kind: configmap
+  from:
+    path: ".spec.masterUsername"
+    resource:
+      group: rds.services.k8s.aws
+      kind: DBInstance
+      name: ack-test-db

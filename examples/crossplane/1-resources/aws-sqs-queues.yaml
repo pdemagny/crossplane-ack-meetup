@@ -1,0 +1,26 @@
+apiVersion: sqs.aws.crossplane.io/v1beta1
+kind: Queue
+metadata:
+  name: cp-test-queue
+spec:
+  deletionPolicy: Orphan
+  forProvider:
+    region: eu-west-1
+    delaySeconds: 4
+    redrivePolicy:
+      deadLetterTargetArnRef:
+        name: cp-test-queue-dlq
+      maxReceiveCount: 1
+  providerConfigRef:
+    name: aws-provider-config
+---
+apiVersion: sqs.aws.crossplane.io/v1beta1
+kind: Queue
+metadata:
+  name: cp-test-queue-dlq
+spec:
+  forProvider:
+    region: eu-west-1
+    delaySeconds: 4
+  providerConfigRef:
+    name: aws-provider-config

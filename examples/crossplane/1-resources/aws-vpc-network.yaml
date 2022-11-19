@@ -1,0 +1,45 @@
+apiVersion: ec2.aws.crossplane.io/v1beta1
+kind: VPC
+metadata:
+  name: cp-test-vpc
+spec:
+  forProvider:
+    region: eu-west-1
+    enableDnsHostNames: true
+    enableDnsSupport: true
+    cidrBlock: 10.40.0.0/16
+    tags:
+      - key: Name
+        value: cp-test-vpc
+  providerConfigRef:
+    name: aws-provider-config
+---
+apiVersion: ec2.aws.crossplane.io/v1beta1
+kind: Subnet
+metadata:
+  name: cp-test-vpc-sn1
+spec:
+  forProvider:
+    region: eu-west-1
+    availabilityZone: eu-west-1b
+    cidrBlock: 10.40.1.0/24
+    vpcIdRef:
+      name: cp-test-vpc
+    mapPublicIPOnLaunch: true
+  providerConfigRef:
+    name: aws-provider-config
+---
+apiVersion: ec2.aws.crossplane.io/v1beta1
+kind: Subnet
+metadata:
+  name: cp-test-vpc-sn2
+spec:
+  forProvider:
+    region: eu-west-1
+    availabilityZone: eu-west-1c
+    cidrBlock: 10.40.2.0/24
+    vpcIdRef:
+      name: cp-test-vpc
+    mapPublicIPOnLaunch: false
+  providerConfigRef:
+    name: aws-provider-config

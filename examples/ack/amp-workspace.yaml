@@ -1,0 +1,6 @@
+apiVersion: prometheusservice.services.k8s.aws/v1alpha1
+kind: Workspace
+metadata:
+  name: "ack-amp-test-workspace"
+spec:
+  alias: "ack-amp-test-workspace"
